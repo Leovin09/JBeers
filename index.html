@@ -71,7 +71,7 @@ button { cursor:pointer; }
   flex:1;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  padding:0 0 calc(var(--nav-h) + var(--safe-bottom) + 8px);
+  padding:0 0 24px;
 }
 
 /* ── SCREENS ── */
@@ -80,28 +80,55 @@ button { cursor:pointer; }
 .screen-title { font-size:26px; font-weight:800; color:var(--amber); margin-bottom:2px; }
 .screen-sub { color:var(--muted); font-size:12px; margin-bottom:14px; }
 
-/* ── BOTTOM NAV ── */
-#bottom-nav {
-  position:fixed; bottom:0; left:0; right:0;
-  height:calc(var(--nav-h) + var(--safe-bottom));
-  padding-bottom:var(--safe-bottom);
-  background:var(--surface);
-  border-top:1px solid var(--border);
-  display:flex; align-items:stretch;
-  z-index:100;
-  box-shadow:0 -2px 12px var(--shadow);
+/* ── DRAWER NAV ── */
+#drawer-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.55); z-index:150;
+  transition:opacity .25s;
 }
-.nav-tab {
-  flex:1; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  gap:3px; background:none; border:none;
-  color:var(--muted); font-size:10px; font-weight:600;
-  padding:8px 4px; transition:color .15s;
-  -webkit-tap-highlight-color:transparent;
+#drawer-overlay.open { display:block; animation:fadeIn .2s ease; }
+#side-drawer {
+  position:fixed; top:0; left:0; bottom:0;
+  width:270px; background:var(--surface);
+  border-right:1px solid var(--border);
+  z-index:160; display:flex; flex-direction:column;
+  transform:translateX(-100%);
+  transition:transform .28s cubic-bezier(.25,.8,.25,1);
+  box-shadow:4px 0 24px var(--shadow);
 }
-.nav-tab .tab-icon { font-size:20px; line-height:1; }
-.nav-tab.active { color:var(--amber); }
-.nav-tab.active .tab-icon { transform:scale(1.1); }
+#side-drawer.open { transform:translateX(0); }
+.drawer-header {
+  padding:20px 18px 14px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface2);
+}
+.drawer-logo { font-size:22px; font-weight:900; color:var(--amber); letter-spacing:1px; }
+.drawer-logo-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.drawer-nav { flex:1; padding:10px 0; overflow-y:auto; }
+.drawer-item {
+  display:flex; align-items:center; gap:12px;
+  padding:13px 20px; background:none; border:none; width:100%;
+  color:var(--muted); font-size:14px; font-weight:600;
+  text-align:left; cursor:pointer; transition:all .15s;
+  border-left:3px solid transparent;
+}
+.drawer-item:active { background:var(--surface2); }
+.drawer-item.active { color:var(--amber); background:rgba(245,166,35,.08); border-left-color:var(--amber); }
+.drawer-item .d-icon { font-size:20px; width:28px; text-align:center; flex-shrink:0; }
+.drawer-section { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); padding:12px 20px 4px; }
+.drawer-footer { padding:14px 18px; border-top:1px solid var(--border); }
+.hamburger-btn { background:none; border:none; font-size:22px; padding:4px 6px; color:var(--text); cursor:pointer; border-radius:8px; }
+.hamburger-btn:active { background:var(--surface2); }
+/* Sales bottom-only nav (just Sales stays as big FAB-like area) */
+#sales-quick-btn {
+  position:fixed; bottom:calc(16px + var(--safe-bottom)); right:16px;
+  width:56px; height:56px; border-radius:50%;
+  background:var(--amber); border:none; font-size:24px;
+  display:none; align-items:center; justify-content:center;
+  box-shadow:0 4px 16px rgba(245,166,35,.4);
+  z-index:90; cursor:pointer;
+  animation:popIn .3s cubic-bezier(.25,.8,.25,1);
+}
 
 /* ── CARDS ── */
 .card {
@@ -272,7 +299,7 @@ select option { background:var(--surface2); color:var(--text); }
 
 /* ── TOAST ── */
 #toast {
-  position:fixed; bottom:calc(var(--nav-h) + 12px + var(--safe-bottom)); left:16px; right:16px;
+  position:fixed; bottom:calc(20px + var(--safe-bottom)); left:16px; right:16px;
   background:var(--surface); border:1px solid var(--green); color:var(--green);
   padding:12px 16px; border-radius:10px; font-size:13px; font-weight:600;
   z-index:999; transform:translateY(20px); opacity:0;
@@ -316,8 +343,7 @@ select option { background:var(--surface2); color:var(--text); }
 .sale-item           { animation:fadeSlideIn .18s ease both; }
 .customer-card       { animation:fadeSlideIn .2s ease both; }
 .btn:active          { animation:btnPop .18s ease both; }
-.nav-tab             { transition:color .15s, background .15s; }
-.nav-tab.active .tab-icon { animation:popIn .22s cubic-bezier(.25,.8,.25,1) both; }
+.drawer-item         { transition:color .15s, background .15s, border-color .15s; }
 
 /* ── MISC ── */
 .low-stock { color:var(--red); font-weight:700; }
@@ -334,7 +360,7 @@ hr.divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
 
 /* ── INSTALL BANNER ── */
 #install-banner {
-  position:fixed; bottom:calc(var(--nav-h) + 12px + var(--safe-bottom));
+  position:fixed; bottom:calc(80px + var(--safe-bottom));
   left:16px; right:16px; background:var(--surface);
   border:1px solid var(--amber); border-radius:12px;
   padding:12px 14px; display:flex; align-items:center; gap:10px;
@@ -349,12 +375,40 @@ hr.divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
   <p>Loading...</p>
 </div>
 
+<!-- DRAWER OVERLAY -->
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- SIDE DRAWER -->
+<div id="side-drawer">
+  <div class="drawer-header">
+    <div class="drawer-logo">🍺 JBeers</div>
+    <div class="drawer-logo-sub">Inventory & Sales Tracker</div>
+  </div>
+  <div class="drawer-nav">
+    <div class="drawer-section">Main</div>
+    <button class="drawer-item active" id="di-sales" onclick="navTo('sales','di-sales')"><span class="d-icon">💸</span>Sales</button>
+    <button class="drawer-item" id="di-products" onclick="navTo('products','di-products')"><span class="d-icon">📦</span>Products</button>
+    <button class="drawer-item" id="di-stockin" onclick="navTo('stockin','di-stockin')"><span class="d-icon">➕</span>Stock In</button>
+    <button class="drawer-item" id="di-customers" onclick="navTo('customers','di-customers')"><span class="d-icon">👥</span>Customers</button>
+    <div class="drawer-section">Finance</div>
+    <button class="drawer-item" id="di-expenses" onclick="navTo('expenses','di-expenses')"><span class="d-icon">💼</span>Expenses</button>
+    <button class="drawer-item" id="di-reports" onclick="navTo('reports','di-reports')"><span class="d-icon">📊</span>Reports</button>
+    <div class="drawer-section">App</div>
+    <button class="drawer-item" id="di-settings" onclick="navTo('settings','di-settings')"><span class="d-icon">⚙️</span>Settings</button>
+  </div>
+  <div class="drawer-footer">
+    <button class="btn btn-ghost" style="width:100%;font-size:13px;" onclick="closeDrawer()">✕ Close Menu</button>
+  </div>
+</div>
+
 <!-- TOP HEADER -->
 <div id="app-header">
-  <div class="app-logo">🍺 JBeers <span>Inventory</span></div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="hamburger-btn" onclick="openDrawer()">☰</button>
+    <div class="app-logo" style="font-size:18px;">🍺 JBeers</div>
+  </div>
   <div class="header-actions">
     <button class="hdr-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
-    <button class="hdr-btn" onclick="showMoreMenu()">⋯</button>
   </div>
 </div>
 
@@ -597,14 +651,78 @@ hr.divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
 
 </div><!-- end app-content -->
 
-<!-- BOTTOM NAV -->
-<div id="bottom-nav">
-  <button class="nav-tab" onclick="showScreen('products',this)"><span class="tab-icon">📦</span>Products</button>
-  <button class="nav-tab" onclick="showScreen('stockin',this)"><span class="tab-icon">➕</span>Stock In</button>
-  <button class="nav-tab active" onclick="showScreen('sales',this)"><span class="tab-icon">💸</span>Sales</button>
-  <button class="nav-tab" onclick="showScreen('expenses',this)"><span class="tab-icon">💼</span>Expenses</button>
-  <button class="nav-tab" onclick="showScreen('reports',this)"><span class="tab-icon">📊</span>Reports</button>
+<!-- ═══ SETTINGS ═══ -->
+<div id="screen-settings" class="screen">
+  <div class="screen-title">Settings</div>
+  <p class="screen-sub">Manage your app preferences & data</p>
+
+  <!-- Appearance -->
+  <div class="section-label">Appearance</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;">
+      <div><div style="font-size:14px;font-weight:600;">Theme</div><div style="font-size:12px;color:var(--muted);">Dark or light mode</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" id="theme-btn-settings">🌙 Dark</button>
+    </div>
+  </div>
+
+  <!-- Low stock threshold -->
+  <div class="section-label">Inventory</div>
+  <div class="card">
+    <div class="form-group" style="margin-bottom:0;">
+      <label>Low Stock Warning Threshold</label>
+      <input type="number" id="set-low-stock" placeholder="5" inputmode="numeric" min="0" value="5" style="max-width:120px;">
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;">Products at or below this amount show a ⚠️ warning</div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveLowStockThreshold()" style="margin-top:10px;">Save</button>
+  </div>
+
+  <!-- Expense categories -->
+  <div class="section-label">Expense Categories</div>
+  <div class="card">
+    <div id="exp-categories-list" style="margin-bottom:10px;"></div>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="new-cat-label" placeholder="New category name" style="flex:1;">
+      <button class="btn btn-primary btn-sm" onclick="addExpenseCategory()">Add</button>
+    </div>
+  </div>
+
+  <!-- Business info (shown on receipts) -->
+  <div class="section-label">Business Info (shown on receipts)</div>
+  <div class="card">
+    <div class="form-group"><label>Business Name</label><input type="text" id="set-biz-name" placeholder="e.g. Juan's Beer Supply"></div>
+    <div class="form-group"><label>Address</label><input type="text" id="set-biz-addr" placeholder="Barangay, city..."></div>
+    <div class="form-group" style="margin-bottom:0;"><label>Contact</label><input type="tel" id="set-biz-contact" placeholder="09xx-xxx-xxxx" inputmode="tel"></div>
+    <button class="btn btn-primary btn-sm" onclick="saveBizInfo()" style="margin-top:12px;">Save Business Info</button>
+  </div>
+
+  <!-- Data management -->
+  <div class="section-label">Data Management</div>
+  <div class="card">
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="backupData()">⬆️ Export Backup (JSON)</button>
+      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="restoreData()">⬇️ Restore Backup (JSON)</button>
+      <hr class="divider">
+      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('sales')">📊 Export Sales CSV</button>
+      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('products')">📦 Export Products CSV</button>
+      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('stockin')">➕ Export Stock In CSV</button>
+      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('customers')">👥 Export Customers CSV</button>
+      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('expenses')">💼 Export Expenses CSV</button>
+      <hr class="divider">
+      <button class="btn btn-danger" style="justify-content:flex-start;gap:10px;width:100%;" onclick="confirmClearData()">🗑️ Clear All Data</button>
+    </div>
+  </div>
+
+  <!-- App info -->
+  <div class="section-label">About</div>
+  <div class="card" style="text-align:center;color:var(--muted);font-size:12px;padding:20px;">
+    <div style="font-size:28px;margin-bottom:6px;">🍺</div>
+    <div style="font-weight:700;font-size:14px;color:var(--text);">JBeers</div>
+    <div>Inventory & Sales Tracker</div>
+    <div style="margin-top:6px;font-size:11px;">Data stored locally on your device · Works offline</div>
+  </div>
 </div>
+
+</div><!-- end app-content -->
 
 <!-- ── MODALS ── -->
 <div class="modal-overlay" id="delete-modal">
@@ -650,24 +768,7 @@ hr.divider { border:none; border-top:1px solid var(--border); margin:12px 0; }
     <div class="btn-row"><button class="btn btn-danger" style="flex:1" onclick="confirmVoidSale()">Yes, Void</button><button class="btn btn-ghost" style="flex:1" onclick="closeVoidSale()">Cancel</button></div>
   </div>
 </div>
-<div class="modal-overlay" id="more-menu-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h3>More Options</h3>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
-      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('sales');closeMoreMenu()">📊 Export Sales CSV</button>
-      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('products');closeMoreMenu()">📦 Export Products CSV</button>
-      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('stockin');closeMoreMenu()">➕ Export Stock In CSV</button>
-      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('customers');closeMoreMenu()">👥 Export Customers CSV</button>
-      <hr class="divider">
-      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="backupData();closeMoreMenu()">⬆️ Backup Data (JSON)</button>
-      <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="restoreData();closeMoreMenu()">⬇️ Restore Data (JSON)</button>
-        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="showScreen('customers',null);closeMoreMenu()">👥 Customers</button>
-    <hr class="divider">
-      <button class="btn btn-ghost" onclick="closeMoreMenu()">Close</button>
-    </div>
-  </div>
-</div>
+
 
 <div id="toast"></div>
 
@@ -801,7 +902,8 @@ function peso(n){return'₱'+(+n||0).toFixed(2);}
 // ── THEME ──
 function applyTheme(t){
   document.documentElement.setAttribute('data-theme',t);
-  document.getElementById('theme-btn').textContent=t==='dark'?'🌙':'☀️';
+  const tb=document.getElementById('theme-btn');if(tb)tb.textContent=t==='dark'?'🌙':'☀️';
+  const tbs=document.getElementById('theme-btn-settings');if(tbs)tbs.textContent=t==='dark'?'🌙 Dark':'☀️ Light';
   const meta=document.getElementById('theme-color-meta');
   if(meta)meta.content=t==='dark'?'#0f0d0b':'#f4efe6';
 }
@@ -812,10 +914,10 @@ function toggleTheme(){
 
 // ── DB (localStorage for PWA) ──
 function loadDB(){
-  try{const d=localStorage.getItem('beerstock_db');if(d){db=JSON.parse(d);if(!db.customers)db.customers=[];if(!db.expenses)db.expenses=[];}}catch(e){console.error(e);}
+  try{const d=localStorage.getItem('JBeers_db');if(d){db=JSON.parse(d);if(!db.customers)db.customers=[];if(!db.expenses)db.expenses=[];}}catch(e){console.error(e);}
 }
 function saveDB(){
-  try{localStorage.setItem('beerstock_db',JSON.stringify(db));}catch(e){toast('Storage full!',true);}
+  try{localStorage.setItem('JBeers_db',JSON.stringify(db));}catch(e){toast('Storage full!',true);}
 }
 
 // ── CSV / BACKUP (download via anchor) ──
@@ -829,15 +931,15 @@ function csvRow(arr){return arr.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"')
 function exportCSV(type){
   let filename,rows;
   if(type==='products'){
-    filename=`beerstock-products-${today()}.csv`;
+    filename=`JBeers-products-${today()}.csv`;
     rows=[csvRow(['Name','Buy Price','Sell Price','Margin','Stock','Stock Value'])];
     db.products.forEach(p=>rows.push(csvRow([p.name,p.buy,p.sell,(p.sell-p.buy).toFixed(2),p.stock,(p.stock*p.buy).toFixed(2)])));
   } else if(type==='stockin'){
-    filename=`beerstock-stockin-${today()}.csv`;
+    filename=`JBeers-stockin-${today()}.csv`;
     rows=[csvRow(['Date','Product','Qty Added'])];
     db.transactions.filter(t=>t.type==='IN').forEach(t=>{const p=db.products.find(x=>x.id===t.product_id);rows.push(csvRow([t.date,p?p.name:'Deleted',t.qty]));});
   } else if(type==='sales'){
-    filename=`beerstock-sales-${today()}.csv`;
+    filename=`JBeers-sales-${today()}.csv`;
     rows=[csvRow(['Date','Items','Customer','Delivery','Total','Profit','Payment','Amount Paid','Balance','Due Date'])];
     db.transactions.filter(t=>t.type==='OUT').forEach(t=>{
       const items=(t.items||[]).map(i=>`${i.name} x${i.qty}`).join('; ')||'—';
@@ -846,11 +948,11 @@ function exportCSV(type){
       rows.push(csvRow([t.date,items,c?c.name:'Walk-in',t.delivery||'walkin',(t.total||0).toFixed(2),(t.profit||0).toFixed(2),t.payment||'paid',(t.partialAmt||'').toString(),bal.toFixed(2),t.dueDate||'']));
     });
   } else if(type==='expenses'){
-    filename=`beerstock-expenses-${today()}.csv`;
+    filename=`JBeers-expenses-${today()}.csv`;
     rows=[csvRow(['Date','Description','Category','Amount'])];
     db.expenses.forEach(e=>rows.push(csvRow([e.date,e.desc,e.category,(e.amount||0).toFixed(2)])));
   } else if(type==='customers'){
-    filename=`beerstock-customers-${today()}.csv`;
+    filename=`JBeers-customers-${today()}.csv`;
     rows=[csvRow(['Name','Contact','Address','Total Orders','Pending Balance'])];
     db.customers.forEach(c=>{
       const orders=db.transactions.filter(t=>t.type==='OUT'&&t.customer_id===c.id);
@@ -862,7 +964,7 @@ function exportCSV(type){
   toast(`${type} CSV downloaded!`);
 }
 function backupData(){
-  downloadFile(`beerstock-backup-${today()}.json`, JSON.stringify(db,null,2), 'application/json');
+  downloadFile(`JBeers-backup-${today()}.json`, JSON.stringify(db,null,2), 'application/json');
   toast('Backup downloaded!');
 }
 function restoreData(){
@@ -884,20 +986,26 @@ function restoreData(){
   input.click();
 }
 
-// ── NAV ──
-function showScreen(name,btn){
+// ── DRAWER NAV ──
+function openDrawer(){ document.getElementById('side-drawer').classList.add('open'); document.getElementById('drawer-overlay').classList.add('open'); }
+function closeDrawer(){ document.getElementById('side-drawer').classList.remove('open'); document.getElementById('drawer-overlay').classList.remove('open'); }
+function navTo(name, btnId){
+  closeDrawer();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.drawer-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
-  if(btn)btn.classList.add('active');
+  const btn=document.getElementById(btnId); if(btn)btn.classList.add('active');
   document.getElementById('app-content').scrollTop=0;
   if(name==='stockin'||name==='sales')populateDropdowns();
   if(name==='reports')renderReports();
   if(name==='customers')renderCustomers();
   if(name==='expenses')renderExpenses();
+  if(name==='settings')renderSettings();
 }
-function showMoreMenu(){document.getElementById('more-menu-modal').classList.add('open');}
-function closeMoreMenu(){document.getElementById('more-menu-modal').classList.remove('open');}
+// Legacy compat
+function showScreen(name){ navTo(name,'di-'+name); }
+function showMoreMenu(){ openDrawer(); }
+function closeMoreMenu(){ closeDrawer(); }
 
 // ── MODALS ──
 function openDeleteModal(id){deleteTargetId=id;document.getElementById('delete-modal').classList.add('open');}
@@ -1045,7 +1153,7 @@ function renderProducts(){
   if(!db.products.length){el.innerHTML='<div class="empty">No products yet — add one above</div>';return;}
   el.innerHTML=db.products.map(p=>{
     const m=p.sell-p.buy;
-    const cls=p.stock<=5?'low-stock':'ok-stock';
+    const threshold=appSettings?.lowStockThreshold??5;const cls=p.stock<=threshold?'low-stock':'ok-stock';
     return`<div class="product-card">
       <div class="product-card-info">
         <div class="product-card-name">${p.name}</div>
@@ -1358,7 +1466,7 @@ function printReceipt(txId){
     color:${t.voided?'#999':t.payment==='paid'?'#2e7d32':t.payment==='partial'?'#f57f17':'#c62828'};}
   .footer{text-align:center;color:#aaa;font-size:10px;margin-top:14px;}
   @media print{body{padding:0;}}</style></head><body>
-  <h1>🍺 JBeers</h1><div class="sub">Receipt — ${now}</div>
+  <h1>🍺 ${appSettings?.bizName||'JBeers'}</h1>${appSettings?.bizAddr?`<div style="font-size:11px;color:#666;">${appSettings.bizAddr}</div>`:''} ${appSettings?.bizContact?`<div style="font-size:11px;color:#666;">${appSettings.bizContact}</div>`:''}<div class="sub" style="margin-top:4px;">Receipt — ${now}</div>
   <hr class="divider">
   <div class="row"><span class="label">Date:</span><span>${fmtDate(t.date)}</span></div>
   <div class="row"><span class="label">Customer:</span><span>${c?c.name:'Walk-in'}</span></div>
@@ -1496,7 +1604,7 @@ function renderReports(){
 
   // Stock remaining
   document.getElementById('report-stock-tbody').innerHTML=db.products.length
-    ?db.products.map(p=>{const cls=p.stock<=5?'low-stock':'ok-stock';return`<tr>
+    ?db.products.map(p=>{const threshold=appSettings?.lowStockThreshold??5;const cls=p.stock<=threshold?'low-stock':'ok-stock';return`<tr>
       <td style="font-size:12px;">${p.name}</td>
       <td class="mono ${cls}">${p.stock}${p.stock<=5?' ⚠️':''}</td>
       <td class="mono">${peso(p.stock*p.buy)}</td></tr>`;}).join('')
@@ -1601,6 +1709,80 @@ function toast(msg,isError=false,showUndo=false){
   clearTimeout(el._t);el._t=setTimeout(()=>{el.className='';},3500);
 }
 
+// ── SETTINGS ──
+let appSettings = { lowStockThreshold:5, bizName:'', bizAddr:'', bizContact:'', customCategories:[] };
+
+function loadSettings(){
+  try{const s=localStorage.getItem('bs_settings');if(s)appSettings={...appSettings,...JSON.parse(s)};}catch(e){}
+  // Apply loaded settings
+  document.getElementById('set-low-stock').value=appSettings.lowStockThreshold||5;
+  document.getElementById('set-biz-name').value=appSettings.bizName||'';
+  document.getElementById('set-biz-addr').value=appSettings.bizAddr||'';
+  document.getElementById('set-biz-contact').value=appSettings.bizContact||'';
+  // Sync theme button in settings
+  const t=document.documentElement.getAttribute('data-theme');
+  const sb=document.getElementById('theme-btn-settings');
+  if(sb)sb.textContent=t==='dark'?'🌙 Dark':'☀️ Light';
+}
+function saveSettings(){
+  localStorage.setItem('bs_settings',JSON.stringify(appSettings));
+}
+function saveLowStockThreshold(){
+  const v=parseInt(document.getElementById('set-low-stock').value)||5;
+  appSettings.lowStockThreshold=v;
+  saveSettings(); renderProducts(); toast('Low stock threshold saved.');
+}
+function saveBizInfo(){
+  appSettings.bizName=document.getElementById('set-biz-name').value.trim();
+  appSettings.bizAddr=document.getElementById('set-biz-addr').value.trim();
+  appSettings.bizContact=document.getElementById('set-biz-contact').value.trim();
+  saveSettings(); toast('Business info saved.');
+}
+function addExpenseCategory(){
+  const label=document.getElementById('new-cat-label').value.trim();
+  if(!label)return toast('Enter category name.',true);
+  const key=label.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  if(EXPENSE_ICONS[key])return toast('Category already exists.',true);
+  EXPENSE_ICONS[key]='📝'; EXPENSE_LABELS[key]=label;
+  appSettings.customCategories=appSettings.customCategories||[];
+  appSettings.customCategories.push({key,label});
+  saveSettings();
+  // Add to expense select
+  const sel=document.getElementById('exp-category');
+  const opt=document.createElement('option');
+  opt.value=key; opt.textContent=`📝 ${label}`;
+  sel.appendChild(opt);
+  document.getElementById('new-cat-label').value='';
+  renderSettings(); toast(`Category "${label}" added.`);
+}
+function renderSettings(){
+  // Sync theme btn
+  const t=document.documentElement.getAttribute('data-theme');
+  const sb=document.getElementById('theme-btn-settings');
+  if(sb)sb.textContent=t==='dark'?'🌙 Dark':'☀️ Light';
+  document.getElementById('set-low-stock').value=appSettings.lowStockThreshold||5;
+  document.getElementById('set-biz-name').value=appSettings.bizName||'';
+  document.getElementById('set-biz-addr').value=appSettings.bizAddr||'';
+  document.getElementById('set-biz-contact').value=appSettings.bizContact||'';
+  // Render custom categories
+  const catEl=document.getElementById('exp-categories-list');
+  const builtIn=Object.entries(EXPENSE_LABELS).filter(([k])=>!appSettings.customCategories?.find(c=>c.key===k));
+  const custom=appSettings.customCategories||[];
+  catEl.innerHTML='<div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Built-in categories cannot be removed.</div>'+
+    builtIn.map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;"><span>${EXPENSE_ICONS[k]} ${v}</span><span class="badge badge-muted">Built-in</span></div>`).join('')+
+    (custom.length?'<hr class="divider" style="margin:8px 0;">'+''+custom.map(cat=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;"><span>${EXPENSE_ICONS[cat.key]||'📝'} ${cat.label}</span><button class="btn btn-danger btn-sm" onclick="removeCategory('${cat.key}')">Remove</button></div>`).join(''):'');
+}
+function removeCategory(key){
+  appSettings.customCategories=(appSettings.customCategories||[]).filter(c=>c.key!==key);
+  delete EXPENSE_ICONS[key]; delete EXPENSE_LABELS[key];
+  saveSettings(); renderSettings(); toast('Category removed.');
+}
+function confirmClearData(){
+  if(!confirm('⚠️ This will permanently delete ALL your data (products, sales, customers, expenses). This cannot be undone.\n\nType OK to confirm.'))return;
+  db={products:[],transactions:[],customers:[],expenses:[]};
+  saveDB(); renderAll(); toast('All data cleared.');
+}
+
 function renderAll(){renderProducts();renderStockIn();renderSales();renderCustomers();renderReports();renderExpenses();}
 
 // ── PWA: Service Worker + Install Banner ──
@@ -1627,6 +1809,15 @@ async function doInstall(){
 (()=>{
   applyTheme(localStorage.getItem('bs_theme')||'dark');
   loadDB();
+  loadSettings();
+  // Load custom categories from settings
+  (appSettings.customCategories||[]).forEach(cat=>{
+    EXPENSE_ICONS[cat.key]='📝'; EXPENSE_LABELS[cat.key]=cat.label;
+    const sel=document.getElementById('exp-category');
+    if(sel&&!sel.querySelector(`option[value="${cat.key}"]`)){
+      const opt=document.createElement('option');opt.value=cat.key;opt.textContent=`📝 ${cat.label}`;sel.appendChild(opt);
+    }
+  });
   const t=today();
   document.getElementById('si-date').value=t;
   document.getElementById('sale-date').value=t;
@@ -1635,13 +1826,7 @@ async function doInstall(){
   const monStart=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
   reportFilter={from:monStart,to:t};
   renderAll();
-  // Open Sales dashboard by default
-  const salesTab=document.querySelector('.nav-tab.active');
-  if(salesTab)salesTab.classList.remove('active');
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-sales').classList.add('active');
-  const salesNavBtn=[...document.querySelectorAll('.nav-tab')].find(b=>b.textContent.includes('Sales'));
-  if(salesNavBtn)salesNavBtn.classList.add('active');
+  // Sales opens first — already set active in HTML drawer
   document.getElementById('loading').style.display='none';
 })();
 </script>
